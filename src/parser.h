@@ -42,11 +42,24 @@ class Parser {
 
 public:
     Parser(const std::vector<Token> &tokenList);
+
     ~Parser();
 
     Parser(const Parser&) = delete;
     Parser(Parser&&) = delete;
     Parser& operator=(const Parser&) = delete;
+
+    std::unique_ptr<Expression> Parse() {
+        return std::move(this->expression());
+    }
+
+
+private:
+    bool match(TokenType type);
+
+    Token consume(TokenType type, const char* message);
+
+    ParserError error(const Token &token, const char* message);
 
     std::unique_ptr<Expression> expression();
 
@@ -61,14 +74,6 @@ public:
     std::unique_ptr<Expression> unary();
 
     std::unique_ptr<Expression> primary();
-
-
-private:
-    bool match(TokenType type);
-
-    Token consume(TokenType type, const char* message);
-
-    ParserError error(const Token &token, const char* message);
 
     inline bool check(TokenType type) const {
         if (isAtEnd()) return false;

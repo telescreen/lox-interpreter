@@ -5,9 +5,38 @@
 #include "token.h"
 
 
+class BinaryExpression;
+class UnaryExpression;
+class GroupingExpression;
+class NumberExpression;
+class StringExpression;
+class BooleanExpression;
+
+
+class IVisitor {
+public:
+    virtual ~IVisitor();
+
+    virtual void Visit(const BinaryExpression& expr) const;
+
+    virtual void Visit(const UnaryExpression& expr) const;
+
+    virtual void Visit(const GroupingExpression& expr) const;
+
+    virtual void Visit(const NumberExpression& expr) const;
+
+    virtual void Visit(const StringExpression& expr) const;
+
+    virtual void Visit(const BooleanExpression& expr) const;
+};
+
+
+
 class Expression {
 public:
     virtual ~Expression() = default;
+
+    virtual void Accept(const IVisitor &visitor) const = 0;
 };
 
 
@@ -22,6 +51,10 @@ public:
                      std::unique_ptr<Expression> rhs)
         : op(op), left(std::move(lhs)), right(std::move(rhs)) {
     }
+
+    void Accept(const IVisitor &visitor) const override {
+        visitor.Visit(*this);
+    }
 };
 
 
@@ -33,6 +66,10 @@ public:
     UnaryExpression(Token op, std::unique_ptr<Expression> rhs)
         : op(op), right(std::move(rhs)) {
     }
+
+    void Accept(const IVisitor &visitor) const override {
+        visitor.Visit(*this);
+    }
 };
 
 
@@ -42,6 +79,10 @@ public:
 
     GroupingExpression(std::unique_ptr<Expression> rhs)
         : right(std::move(rhs)) {
+    }
+
+    void Accept(const IVisitor &visitor) const override {
+        visitor.Visit(*this);
     }
 };
 
@@ -53,6 +94,10 @@ public:
     }
     double GetValue() const { return value; }
 
+    void Accept(const IVisitor &visitor) const override {
+        visitor.Visit(*this);
+    }
+
 private:
     double value;
 };
@@ -63,6 +108,10 @@ public:
     StringExpression(std::string value): value(value) {}
     std::string GetValue() const { return value; }
 
+    void Accept(const IVisitor &visitor) const override {
+        visitor.Visit(*this);
+    }
+
 private:
     std::string value;
 };
@@ -72,6 +121,10 @@ class BooleanExpression: public Expression {
 public:
     BooleanExpression(bool value): value(value) {}
     bool GetValue() const { return value; }
+
+    void Accept(const IVisitor &visitor) const override {
+        visitor.Visit(*this);
+    }
 
 private:
     bool value;

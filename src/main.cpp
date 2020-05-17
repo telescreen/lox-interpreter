@@ -4,6 +4,7 @@
 
 #include "scanner.h"
 #include "token.h"
+#include "parser.h"
 
 
 bool hadError = false;
@@ -20,7 +21,6 @@ public:
         Report(line, "", message);
     }
 
-
     void Prompt() {
         std::string buffer;
         while (1) {
@@ -34,13 +34,11 @@ public:
     }
 
 private:
-    void run(std::string source) {
+    void run(const std::string &source) {
         Scanner scanner(source);
         std::vector<Token> tokens = scanner.ScanTokens();
-
-        for(auto &token: tokens) {
-            std::cout << token << std::endl;
-        }
+        Parser parser {tokens};
+        std::unique_ptr<Expression> expr = parser.Parse();
     }
 };
 
