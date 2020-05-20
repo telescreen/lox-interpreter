@@ -31,4 +31,7 @@ if(${CMAKE_VERSION} VERSION_LESS 3.14)
 endif()
 
 add_subdirectory(src)
-add_subdirectory(example)
+
+if ("${BUILD_EXAMPLE}")
+    add_subdirectory(example)
+endif()

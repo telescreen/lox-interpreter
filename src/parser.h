@@ -4,16 +4,21 @@
 
 #include <vector>
 #include <memory>
-#include <exception>
 
 #include "ast.h"
 #include "token.h"
 #include "token_type.h"
+#include "lox_exception.hpp"
 
 
 /* Recursive Decent Parser
  * Grammar
- * expression     → equality ;
+
+   program        → statement* EOF ;
+   statement      → expressionStatement
+                  | printStatement ;
+   expressionStatement → expression ;
+   expression     → equality ;
    equality       → comparison ( ( "!=" | "==" ) comparison )* ;
    comparison     → addition ( ( ">" | ">=" | "<" | "<=" ) addition )* ;
    addition       → multiplication ( ( "-" | "+" ) multiplication )* ;
@@ -24,33 +29,22 @@
                  | "(" expression ")" ;
 */
 
-
-class ParserError: public std::exception {
-    Token token;
-    const char *message;
-public:
-    ParserError(const Token &token, const char *message)
-        : token(token), message(message) {
-    }
-
-    virtual const char* what() const throw() {
-        return message;
-    }
-};
-
 class Parser {
 
 public:
     Parser(const std::vector<Token> &tokenList);
-
     ~Parser();
 
-    Parser(const Parser&) = delete;
-    Parser(Parser&&) = delete;
-    Parser& operator=(const Parser&) = delete;
+    /*std::vector<std::unique_ptr<Statement>> Parse() {
+        std::vector<std::unique_ptr<Statement>> statements;
+        while(!isAtEnd()) {
+            statements.push_back(statement());
+        }
+        return statements;
+        }*/
 
     std::unique_ptr<Expression> Parse() {
-        return std::move(this->expression());
+        return expression();
     }
 
 
@@ -60,6 +54,12 @@ private:
     Token consume(TokenType type, const char* message);
 
     ParserError error(const Token &token, const char* message);
+
+    std::unique_ptr<Statement> statement();
+
+    std::unique_ptr<Statement> print_statement();
+
+    std::unique_ptr<Statement> expression_statement();
 
     std::unique_ptr<Expression> expression();
 
@@ -77,7 +77,7 @@ private:
 
     inline bool check(TokenType type) const {
         if (isAtEnd()) return false;
-        return peek().Type() == type;
+        return peek().type == type;
     }
 
     inline Token advance() {
@@ -99,6 +99,7 @@ private:
 
 
 private:
+    /* current points to the currently in process token */
     int current;
     std::vector<Token> tokenList;
 };

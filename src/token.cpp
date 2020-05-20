@@ -13,16 +13,6 @@ Token::~Token() {
 }
 
 
-TokenType Token::Type() const {
-    return type;
-}
-
-
-std::string Token::Literal() const {
-    return literal;
-}
-
-
 std::ostream &operator<<(std::ostream &os, const Token &token)
 {
     std::cout << "token=" << token.type << " "

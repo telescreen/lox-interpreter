@@ -11,10 +11,6 @@ public:
     ~Token();
     friend std::ostream &operator<<(std::ostream &os, const Token &token);
 
-    TokenType Type() const;
-    std::string Literal() const;
-
-private:
     TokenType type;
     std::string lexeme;
     std::string literal;

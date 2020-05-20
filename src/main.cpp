@@ -5,6 +5,7 @@
 #include "scanner.h"
 #include "token.h"
 #include "parser.h"
+#include "interpreter.hpp"
 
 
 bool hadError = false;
@@ -29,16 +30,15 @@ public:
             if (std::cin.eof()) {
                 return;
             }
-            run(buffer);
-        }
-    }
+            Scanner scanner(buffer);
+            std::vector<Token> tokens = scanner.ScanTokens();
+            Parser parser(tokens);
+            auto expr = parser.Parse();
 
-private:
-    void run(const std::string &source) {
-        Scanner scanner(source);
-        std::vector<Token> tokens = scanner.ScanTokens();
-        Parser parser {tokens};
-        std::unique_ptr<Expression> expr = parser.Parse();
+            Interpreter itpr;
+            Value value = itpr.Evaluate(*expr);
+            std::cout << value << std::endl;
+        }
     }
 };
 
@@ -47,11 +47,11 @@ int main(int argc, char **argv) {
     Lox lox;
     if (argc > 2) {
         std::cout << "Usage: lox [script.l]" << std::endl;
-        return (1);
+        return 1;
     } else if(argc == 2) {
         //runFile(argv[1]);
     } else {
         lox.Prompt();
     }
-
+    return 0;
 }

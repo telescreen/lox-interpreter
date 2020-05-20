@@ -5,6 +5,8 @@
 #include "token.h"
 
 
+class PrintStatement;
+class ExprStatement;
 class BinaryExpression;
 class UnaryExpression;
 class GroupingExpression;
@@ -13,77 +15,98 @@ class StringExpression;
 class BooleanExpression;
 
 
-class IVisitor {
+class Statement {
 public:
-    virtual ~IVisitor();
+    virtual ~Statement() = default;
 
-    virtual void Visit(const BinaryExpression& expr) const;
+    class Visitor {
+    public:
+        virtual void Visit(PrintStatement& stmt) = 0;
+        virtual void Visit(ExprStatement& expr) = 0;
+    };
 
-    virtual void Visit(const UnaryExpression& expr) const;
-
-    virtual void Visit(const GroupingExpression& expr) const;
-
-    virtual void Visit(const NumberExpression& expr) const;
-
-    virtual void Visit(const StringExpression& expr) const;
-
-    virtual void Visit(const BooleanExpression& expr) const;
+    virtual void Accept(Visitor &visitor) = 0;
 };
 
+#define MAKE_STMT_VISITABLE virtual void Accept(Statement::Visitor& visitor) override { visitor.Visit(*this); }
 
 
 class Expression {
 public:
     virtual ~Expression() = default;
 
-    virtual void Accept(const IVisitor &visitor) const = 0;
+    class Visitor {
+    public:
+        virtual void Visit(BinaryExpression& expr) = 0;
+        virtual void Visit(UnaryExpression& expr) = 0;
+        virtual void Visit(GroupingExpression& expr) = 0;
+        virtual void Visit(NumberExpression& expr) = 0;
+        virtual void Visit(StringExpression& expr) = 0;
+        virtual void Visit(BooleanExpression& expr) = 0;
+    };
+
+    virtual void Accept(Visitor& visitor) = 0;
+
+private:
+    std::unique_ptr<Expression> expr;
+};
+using ExpressionUPtr = std::unique_ptr<Expression>;
+#define MAKE_EXPR_VISITABLE virtual void Accept(Expression::Visitor& visitor) override { visitor.Visit(*this); }
+
+
+class PrintStatement: public Statement {
+public:
+    PrintStatement(std::unique_ptr<Expression> expression):
+        expression(std::move(expression)) {
+    }
+    MAKE_STMT_VISITABLE
+
+private:
+    std::unique_ptr<Expression> expression;
 };
 
+
+class ExprStatement: public Statement {
+public:
+    ExprStatement(std::unique_ptr<Expression> expression):
+        expression(std::move(expression)) {
+    }
+    MAKE_STMT_VISITABLE
+
+private:
+    std::unique_ptr<Expression> expression;
+};
 
 
 class BinaryExpression: public Expression {
 public:
     Token op;
     std::unique_ptr<Expression> left, right;
-
     BinaryExpression(Token op,
                      std::unique_ptr<Expression> lhs,
                      std::unique_ptr<Expression> rhs)
         : op(op), left(std::move(lhs)), right(std::move(rhs)) {
     }
-
-    void Accept(const IVisitor &visitor) const override {
-        visitor.Visit(*this);
-    }
+    MAKE_EXPR_VISITABLE
 };
 
 
 class UnaryExpression: public Expression {
 public:
     Token op;
-    std::unique_ptr<Expression> right;
-
-    UnaryExpression(Token op, std::unique_ptr<Expression> rhs)
-        : op(op), right(std::move(rhs)) {
+    std::unique_ptr<Expression> expression;
+    UnaryExpression(Token op, std::unique_ptr<Expression> rhs): op(op), expression(std::move(rhs)) {
     }
-
-    void Accept(const IVisitor &visitor) const override {
-        visitor.Visit(*this);
-    }
+    MAKE_EXPR_VISITABLE
 };
 
 
 class GroupingExpression: public Expression {
 public:
-    std::unique_ptr<Expression> right;
-
-    GroupingExpression(std::unique_ptr<Expression> rhs)
-        : right(std::move(rhs)) {
+    std::unique_ptr<Expression> expression;
+    GroupingExpression(std::unique_ptr<Expression> rhs): expression(std::move(rhs)) {
     }
-
-    void Accept(const IVisitor &visitor) const override {
-        visitor.Visit(*this);
-    }
+    MAKE_EXPR_VISITABLE
 };
 
 
@@ -93,10 +116,7 @@ public:
         this->value = strtod(val.c_str(), nullptr);
     }
     double GetValue() const { return value; }
-
-    void Accept(const IVisitor &visitor) const override {
-        visitor.Visit(*this);
-    }
+    MAKE_EXPR_VISITABLE
 
 private:
     double value;
@@ -107,10 +127,8 @@ class StringExpression: public Expression {
 public:
     StringExpression(std::string value): value(value) {}
     std::string GetValue() const { return value; }
+    MAKE_EXPR_VISITABLE
 
-    void Accept(const IVisitor &visitor) const override {
-        visitor.Visit(*this);
-    }
 
 private:
     std::string value;
@@ -121,10 +139,7 @@ class BooleanExpression: public Expression {
 public:
     BooleanExpression(bool value): value(value) {}
     bool GetValue() const { return value; }
-
-    void Accept(const IVisitor &visitor) const override {
-        visitor.Visit(*this);
-    }
+    MAKE_EXPR_VISITABLE
 
 private:
     bool value;
