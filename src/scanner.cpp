@@ -23,8 +23,7 @@ const std::map<std::string, TokenType> Scanner::keywords = {
 };
 
 
-Scanner::Scanner(std::string source) {
-    this->source = source;
+Scanner::Scanner(const char *source): source(source) {
 }
 
 

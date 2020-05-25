@@ -133,17 +133,11 @@ std::unique_ptr<Expression> Parser::primary() {
         return std::make_unique<GroupingExpression>(std::move(expr));
     }
 
-    throw error(peek(), "Error parsing primary");
+    throw ParserError(peek(), "Error parsing primary. Primary must be BOOL, NUBMER, or STRING");
 }
 
 
 Token Parser::consume(TokenType type, const char* message) {
     if (check(type)) return advance();
-    throw error(peek(), message);
-}
-
-
-ParserError Parser::error(const Token &token, const char* message) {
-    std::cerr << message << std::endl;
-    return ParserError(token, message);
+    throw ParserError(peek(), message);
 }

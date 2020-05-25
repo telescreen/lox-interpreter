@@ -42,7 +42,6 @@ public:
         }
         return statements;
         }*/
-
     std::unique_ptr<Expression> Parse() {
         return expression();
     }
@@ -52,8 +51,6 @@ private:
     bool match(TokenType type);
 
     Token consume(TokenType type, const char* message);
-
-    ParserError error(const Token &token, const char* message);
 
     std::unique_ptr<Statement> statement();
 

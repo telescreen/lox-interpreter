@@ -1,13 +1,13 @@
-cmake_minimum_required(VERSION 3.1...3.15)
+cmake_minimum_required(VERSION 3.16)
 
-if (${CMAKE_VERSION} VERSION_LESS 3.12)
+if (${CMAKE_VERSION} VERSION_LESS 3.16)
   cmake_policy(VERSION ${CMAKE_MAJOR_VERSION} ${CMAKE_MINOR_VERSION})
 endif()
 
 project(Lox
   VERSION 1.0
   DESCRIPTION "Lox Intepreter"
-  LANGUAGES CXX)
+  LANGUAGES C CXX)
 
 # Only do these if this is the main project, and not if it is included through add_subdirectory
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
@@ -22,16 +22,26 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
 endif()
 
-
-# FetchContent added in CMake 3.11, downloads during the configure step
-include(FetchContent)
-# FetchContent_MakeAvailable was not added until CMake 3.14
-if(${CMAKE_VERSION} VERSION_LESS 3.14)
-    include(cmake/add_FetchContent_MakeAvailable.cmake)
-endif()
-
-add_subdirectory(src)
+option(BUILD_EXAMPLE "Build examples (Including programs that are unrelated to lox interpreter)" OFF)
 
 if ("${BUILD_EXAMPLE}")
     add_subdirectory(example)
-endif()
+  endif()
+
+
+include(FetchContent)
+#########################
+# Fetch library         #
+#########################
+
+# Formatting library
+#FetchContent_Declare(
+#  fmtlib
+#  GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+#  GIT_TAG        5.3.0
+#)
+# Adds fmt::fmt
+#FetchContent_MakeAvailable(fmtlib)
+
+
+add_subdirectory(src)

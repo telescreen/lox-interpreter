@@ -18,13 +18,15 @@ public:
     Value(std::string text): text(text), value_type(STRING) {}
 
     friend Value operator+(const Value& lhs, const Value& rhs) {
+        Value val(lhs);
         switch(lhs.value_type) {
         case Value::NUMBER:
-            return lhs.number + rhs.number;
+            val.number += rhs.number;
 
         case Value::STRING:
-            return lhs.text + rhs.text;
+            val.text += rhs.text;
         }
+        return val;
     }
 
     friend Value operator-(const Value& lhs, const Value& rhs) {

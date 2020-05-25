@@ -9,7 +9,7 @@
 
 class Scanner {
 public:
-    Scanner(std::string source);
+    Scanner(const char *source);
     ~Scanner();
     std::vector<Token> ScanTokens();
 

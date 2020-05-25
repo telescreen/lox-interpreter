@@ -2,6 +2,8 @@
 #include <vector>
 #include <string>
 
+#include <linenoise.h>
+
 #include "scanner.h"
 #include "token.h"
 #include "parser.h"
@@ -23,21 +25,31 @@ public:
     }
 
     void Prompt() {
-        std::string buffer;
-        while (1) {
-            std::cout << "> ";
-            std::getline(std::cin, buffer);
-            if (std::cin.eof()) {
-                return;
-            }
-            Scanner scanner(buffer);
-            std::vector<Token> tokens = scanner.ScanTokens();
-            Parser parser(tokens);
-            auto expr = parser.Parse();
+        linenoiseSetMultiLine(1);
+        linenoiseHistoryLoad("history.txt");
 
-            Interpreter itpr;
-            Value value = itpr.Evaluate(*expr);
-            std::cout << value << std::endl;
+        char *buffer;
+        while ((buffer=linenoise(">>> ")) != NULL) {
+            linenoiseHistoryAdd(buffer);
+            linenoiseHistorySave("history.txt");
+
+            if (buffer[0] != '\0') {
+
+                try {
+                    Scanner scanner(buffer);
+                    std::vector<Token> tokens = scanner.ScanTokens();
+                    Parser parser(tokens);
+                    auto expr = parser.Parse();
+
+                    Interpreter itpr;
+                    Value value = itpr.Evaluate(*expr);
+                    std::cout << value << std::endl;
+                } catch(ParserError& e) {
+                    std::cerr << e.what() << std::endl;
+                }
+            }
+
+            linenoiseFree(buffer);
         }
     }
 };
