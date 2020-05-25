@@ -4,6 +4,7 @@
 #include <iostream>
 
 enum class TokenType {
+    TEOF,
     /* Single charater tokens */
     // ( ) [ ] , . - + ; / *
     LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
@@ -21,7 +22,7 @@ enum class TokenType {
 
     /* Keywords */
     AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR,
-    PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE
+    PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
 };
 std::ostream& operator<<(std::ostream &os, const TokenType &tokenType);
 

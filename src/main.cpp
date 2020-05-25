@@ -37,13 +37,12 @@ public:
 
                 try {
                     Scanner scanner(buffer);
-                    std::vector<Token> tokens = scanner.ScanTokens();
+                    auto tokens = scanner.ScanTokens();
                     Parser parser(tokens);
-                    auto expr = parser.Parse();
+                    auto stmts = parser.Parse();
+                    Interpreter interpreter;
+                    interpreter.Interpret(stmts);
 
-                    Interpreter itpr;
-                    Value value = itpr.Evaluate(*expr);
-                    std::cout << value << std::endl;
                 } catch(ParserError& e) {
                     std::cerr << e.what() << std::endl;
                 }

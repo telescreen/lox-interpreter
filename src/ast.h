@@ -6,7 +6,7 @@
 
 
 class PrintStatement;
-class ExprStatement;
+class ExpressionStatement;
 class BinaryExpression;
 class UnaryExpression;
 class GroupingExpression;
@@ -22,7 +22,7 @@ public:
     class Visitor {
     public:
         virtual void Visit(PrintStatement& stmt) = 0;
-        virtual void Visit(ExprStatement& expr) = 0;
+        virtual void Visit(ExpressionStatement& stmt) = 0;
     };
 
     virtual void Accept(Visitor &visitor) = 0;
@@ -61,19 +61,17 @@ public:
     }
     MAKE_STMT_VISITABLE
 
-private:
     std::unique_ptr<Expression> expression;
 };
 
 
-class ExprStatement: public Statement {
+class ExpressionStatement: public Statement {
 public:
-    ExprStatement(std::unique_ptr<Expression> expression):
+    ExpressionStatement(std::unique_ptr<Expression> expression):
         expression(std::move(expression)) {
     }
     MAKE_STMT_VISITABLE
 
-private:
     std::unique_ptr<Expression> expression;
 };
 

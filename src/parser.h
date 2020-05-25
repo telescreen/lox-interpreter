@@ -35,17 +35,7 @@ public:
     Parser(const std::vector<Token> &tokenList);
     ~Parser();
 
-    /*std::vector<std::unique_ptr<Statement>> Parse() {
-        std::vector<std::unique_ptr<Statement>> statements;
-        while(!isAtEnd()) {
-            statements.push_back(statement());
-        }
-        return statements;
-        }*/
-    std::unique_ptr<Expression> Parse() {
-        return expression();
-    }
-
+    std::vector<std::unique_ptr<Statement>> Parse();
 
 private:
     bool match(TokenType type);
@@ -87,7 +77,7 @@ private:
     }
 
     inline bool isAtEnd() const {
-        return current == tokenList.size();
+        return peek().type == TokenType::TEOF;
     }
 
     inline Token peek() const {

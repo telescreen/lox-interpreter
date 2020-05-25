@@ -11,6 +11,15 @@ Parser::~Parser() {
 }
 
 
+std::vector<std::unique_ptr<Statement>> Parser::Parse() {
+    std::vector<std::unique_ptr<Statement>> statements;
+    while(!isAtEnd()) {
+        statements.push_back(statement());
+    }
+    return statements;
+}
+
+
 bool Parser::match(TokenType type) {
     if (check(type)) {
         advance();
@@ -38,7 +47,7 @@ std::unique_ptr<Statement> Parser::print_statement() {
 std::unique_ptr<Statement> Parser::expression_statement() {
     auto expr = expression();
     consume(TokenType::SEMICOLON, "Expect ';' after a statement");
-    return std::make_unique<ExprStatement>(std::move(expr));
+    return std::make_unique<ExpressionStatement>(std::move(expr));
 }
 
 

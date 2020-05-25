@@ -6,7 +6,6 @@
 #include "ast.h"
 #include "lox_exception.hpp"
 
-
 /* Value interpreted by the interpreter */
 class Value {
 public:
@@ -67,8 +66,7 @@ private:
 };
 
 
-
-class Interpreter: public Expression::Visitor {
+class Interpreter: public Expression::Visitor, public Statement::Visitor {
 public:
 
     Value Evaluate(Expression& p) {
@@ -76,7 +74,25 @@ public:
         return value;
     }
 
-    /* Visitor Interface methods */
+    void Interpret(const std::vector<std::unique_ptr<Statement>>& statements) {
+        for(auto& statement: statements) {
+            statement->Accept(*this);
+        }
+    }
+
+    // Statement::Visitor Interface methods
+    void Visit(PrintStatement& stmt) override {
+        Value value = Evaluate(*stmt.expression);
+        std::cout << value << std::endl << std::flush;
+    }
+
+
+    void Visit(ExpressionStatement& stmt) override {
+        Evaluate(*stmt.expression);
+    }
+
+
+    // Expression::Visitor Interface methods
     void Visit(BinaryExpression& expr) override {
         Value left = Evaluate(*expr.left);
         Value right = Evaluate(*expr.right);
