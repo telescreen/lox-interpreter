@@ -66,6 +66,8 @@ private:
 
     std::unique_ptr<Expression> primary();
 
+    ParserError error(Token token, const char* message);
+
     inline bool check(TokenType type) const {
         if (isAtEnd()) return false;
         return peek().type == type;

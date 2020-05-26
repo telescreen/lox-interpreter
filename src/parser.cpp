@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "lox.hpp"
 
 
 Parser::Parser(const std::vector<Token> &tokenList):
@@ -146,11 +147,17 @@ std::unique_ptr<Expression> Parser::primary() {
         return std::make_unique<GroupingExpression>(std::move(expr));
     }
 
-    throw ParserError(peek(), "Error parsing primary. Primary must be BOOL, NUBMER, or STRING");
+    throw error(peek(), "Error parsing primary. Primary must be BOOL, NUBMER, or STRING");
 }
 
 
 Token Parser::consume(TokenType type, const char* message) {
     if (check(type)) return advance();
-    throw ParserError(peek(), message);
+    throw error(peek(), message);
+}
+
+
+ParserError Parser::error(Token token, const char* message) {
+    Lox::Error(token, message);
+    return ParserError(peek(), message);
 }

@@ -1,57 +1,6 @@
 #include <iostream>
-#include <vector>
-#include <string>
 
-#include <linenoise.h>
-
-#include "scanner.h"
-#include "token.h"
-#include "parser.h"
-#include "interpreter.hpp"
-
-
-bool hadError = false;
-
-class Lox {
-public:
-    static void Report(int line, std::string where, std::string message) {
-        std::cerr << "[line: " << line << "]"
-                  << where << ": " << message << std::endl;
-        hadError = true;
-    }
-
-    static void Error(int line, std::string message) {
-        Report(line, "", message);
-    }
-
-    void Prompt() {
-        linenoiseSetMultiLine(1);
-        linenoiseHistoryLoad("history.txt");
-
-        char *buffer;
-        while ((buffer=linenoise(">>> ")) != NULL) {
-            linenoiseHistoryAdd(buffer);
-            linenoiseHistorySave("history.txt");
-
-            if (buffer[0] != '\0') {
-
-                try {
-                    Scanner scanner(buffer);
-                    auto tokens = scanner.ScanTokens();
-                    Parser parser(tokens);
-                    auto stmts = parser.Parse();
-                    Interpreter interpreter;
-                    interpreter.Interpret(stmts);
-
-                } catch(ParserError& e) {
-                    std::cerr << e.what() << std::endl;
-                }
-            }
-
-            linenoiseFree(buffer);
-        }
-    }
-};
+#include "lox.hpp"
 
 
 int main(int argc, char **argv) {
