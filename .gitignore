@@ -33,3 +33,4 @@
 
 # Ignore all build directory
 build/
+.vscode

@@ -120,20 +120,24 @@ std::unique_ptr<Expression> Parser::unary() {
 
 
 std::unique_ptr<Expression> Parser::primary() {
+    if (match(TokenType::NIL)) {
+        return std::make_unique<LiteralExpression>(Value());
+    }
+
     if (match(TokenType::FALSE)) {
-        return std::make_unique<BooleanExpression>(false);
+        return std::make_unique<LiteralExpression>(false);
     }
 
     if (match(TokenType::TRUE)) {
-        return std::make_unique<BooleanExpression>(true);
+        return std::make_unique<LiteralExpression>(true);
     }
 
     if (match(TokenType::NUMBER)) {
-        return std::make_unique<NumberExpression>(previous().literal);
+        return std::make_unique<LiteralExpression>(std::stod(previous().literal, nullptr));
     }
 
     if (match(TokenType::STRING)) {
-        return std::make_unique<StringExpression>(previous().literal);
+        return std::make_unique<LiteralExpression>(previous().literal);
     }
 
     if (match(TokenType::LEFT_PAREN)) {

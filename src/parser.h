@@ -14,7 +14,10 @@
 /* Recursive Decent Parser
  * Grammar
 
-   program        → statement* EOF ;
+   program        → declaration* EOF ;
+   declaration    → varDecl
+                  | statement
+   varDecl        → "var" IDENTIFIER ("=" expression)? ";"
    statement      → expressionStatement
                   | printStatement ;
    expressionStatement → expression ;
@@ -27,6 +30,7 @@
                   | primary ;
    primary        → NUMBER | STRING | "false" | "true" | "nil"
                  | "(" expression ")" ;
+                 | IDENTIFIER
 */
 
 class Parser {

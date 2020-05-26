@@ -64,5 +64,6 @@ int main(int argc, char **argv) {
     } else {
         lox.Prompt();
     }
+
     return 0;
 }

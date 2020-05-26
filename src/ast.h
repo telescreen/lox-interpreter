@@ -3,6 +3,7 @@
 
 #include <memory>
 #include "token.h"
+#include "value.hpp"
 
 
 class PrintStatement;
@@ -10,9 +11,7 @@ class ExpressionStatement;
 class BinaryExpression;
 class UnaryExpression;
 class GroupingExpression;
-class NumberExpression;
-class StringExpression;
-class BooleanExpression;
+class LiteralExpression;
 
 
 class Statement {
@@ -40,9 +39,7 @@ public:
         virtual void Visit(BinaryExpression& expr) = 0;
         virtual void Visit(UnaryExpression& expr) = 0;
         virtual void Visit(GroupingExpression& expr) = 0;
-        virtual void Visit(NumberExpression& expr) = 0;
-        virtual void Visit(StringExpression& expr) = 0;
-        virtual void Visit(BooleanExpression& expr) = 0;
+        virtual void Visit(LiteralExpression& expr) = 0;
     };
 
     virtual void Accept(Visitor& visitor) = 0;
@@ -108,40 +105,17 @@ public:
 };
 
 
-class NumberExpression: public Expression {
+class LiteralExpression: public Expression {
 public:
-    NumberExpression(const std::string &val) {
-        this->value = strtod(val.c_str(), nullptr);
+    LiteralExpression(Value value): value(value) {
     }
-    double GetValue() const { return value; }
+    Value GetValue() const { return value; }
     MAKE_EXPR_VISITABLE
 
 private:
-    double value;
+    Value value;
 };
 
-
-class StringExpression: public Expression {
-public:
-    StringExpression(std::string value): value(value) {}
-    std::string GetValue() const { return value; }
-    MAKE_EXPR_VISITABLE
-
-
-private:
-    std::string value;
-};
-
-
-class BooleanExpression: public Expression {
-public:
-    BooleanExpression(bool value): value(value) {}
-    bool GetValue() const { return value; }
-    MAKE_EXPR_VISITABLE
-
-private:
-    bool value;
-};
 
 
 #endif
