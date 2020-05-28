@@ -37,7 +37,7 @@ class Parser {
 
 public:
     Parser(const std::vector<Token> &tokenList);
-    ~Parser();
+    virtual ~Parser();
 
     std::vector<std::unique_ptr<Statement>> Parse();
 
@@ -48,9 +48,13 @@ private:
 
     std::unique_ptr<Statement> statement();
 
+    std::unique_ptr<Statement> declaration();
+
     std::unique_ptr<Statement> print_statement();
 
     std::unique_ptr<Statement> expression_statement();
+
+    std::unique_ptr<Statement> var_declaration();
 
     std::unique_ptr<Expression> expression();
 

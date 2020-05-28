@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "token.h"
 
 
@@ -15,9 +17,8 @@ Token::~Token() {
 
 std::ostream &operator<<(std::ostream &os, const Token &token)
 {
-    std::cout << "token=" << token.type << " "
-              << "lexeme=" << token.lexeme << " "
-              << "literal=" << token.literal << " "
-              << "at line=" << token.line;
-    return os;
+    return os << "token = " << token.type << " "
+              << "lexeme = " << token.lexeme << " "
+              << "literal = " << token.literal << " "
+              << "at line = " << token.line;
 }

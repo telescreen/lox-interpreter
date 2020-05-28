@@ -1,9 +1,7 @@
 #ifndef LOX_TOKEN_H
 #define LOX_TOKEN_H
 
-#include <iostream>
 #include "token_type.h"
-
 
 class Token {
 public:

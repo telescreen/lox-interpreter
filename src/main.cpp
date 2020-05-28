@@ -1,12 +1,10 @@
-#include <iostream>
-
+#include <fmt/format.h>
 #include "lox.hpp"
-
 
 int main(int argc, char **argv) {
     Lox lox;
     if (argc > 2) {
-        std::cout << "Usage: lox [script.l]" << std::endl;
+        fmt::print("Usage: lox [script.l]\n");
         return 1;
     } else if(argc == 2) {
         //runFile(argv[1]);

@@ -1,5 +1,6 @@
 #include "token_type.h"
 
+
 std::ostream& operator<<(std::ostream &os, const TokenType &tokenType) {
     switch(tokenType) {
     case TokenType::LEFT_PAREN: os << "LEFT_PAREN"; break;

@@ -8,12 +8,15 @@
 
 class PrintStatement;
 class ExpressionStatement;
+class VarStatement;
 class BinaryExpression;
 class UnaryExpression;
 class GroupingExpression;
 class LiteralExpression;
+class VariableExpression;
 
 
+// Abstract Class
 class Statement {
 public:
     virtual ~Statement() = default;
@@ -22,6 +25,7 @@ public:
     public:
         virtual void Visit(PrintStatement& stmt) = 0;
         virtual void Visit(ExpressionStatement& stmt) = 0;
+        virtual void Visit(VarStatement& stmt) = 0;
     };
 
     virtual void Accept(Visitor &visitor) = 0;
@@ -40,6 +44,7 @@ public:
         virtual void Visit(UnaryExpression& expr) = 0;
         virtual void Visit(GroupingExpression& expr) = 0;
         virtual void Visit(LiteralExpression& expr) = 0;
+        virtual void Visit(VariableExpression& expr) = 0;
     };
 
     virtual void Accept(Visitor& visitor) = 0;
@@ -51,6 +56,7 @@ using ExpressionUPtr = std::unique_ptr<Expression>;
 #define MAKE_EXPR_VISITABLE virtual void Accept(Expression::Visitor& visitor) override { visitor.Visit(*this); }
 
 
+/* Statement Declaration */
 class PrintStatement: public Statement {
 public:
     PrintStatement(std::unique_ptr<Expression> expression):
@@ -72,6 +78,20 @@ public:
     std::unique_ptr<Expression> expression;
 };
 
+
+class VarStatement: public Statement {
+public:
+    VarStatement(Token token, std::unique_ptr<Expression> init):
+        token(token), init(std::move(init)) {
+    }
+    MAKE_STMT_VISITABLE
+
+    Token token;
+    std::unique_ptr<Expression> init;
+};
+
+
+/* Expression Declaration */
 
 class BinaryExpression: public Expression {
 public:
@@ -107,13 +127,19 @@ public:
 
 class LiteralExpression: public Expression {
 public:
+    Value value;
     LiteralExpression(Value value): value(value) {
     }
-    Value GetValue() const { return value; }
     MAKE_EXPR_VISITABLE
+};
 
-private:
-    Value value;
+
+class VariableExpression: public Expression {
+public:
+    Token token;
+    VariableExpression(Token token): token(token) {
+    }
+    MAKE_EXPR_VISITABLE
 };
 
 

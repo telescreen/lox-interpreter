@@ -35,13 +35,12 @@ include(FetchContent)
 #########################
 
 # Formatting library
-#FetchContent_Declare(
-#  fmtlib
-#  GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-#  GIT_TAG        5.3.0
-#)
-# Adds fmt::fmt
-#FetchContent_MakeAvailable(fmtlib)
+FetchContent_Declare(
+  fmtlib
+  GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+  GIT_TAG        5.3.0
+)
+FetchContent_MakeAvailable(fmtlib)
 
 
 add_subdirectory(src)

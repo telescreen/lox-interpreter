@@ -15,7 +15,7 @@ Parser::~Parser() {
 std::vector<std::unique_ptr<Statement>> Parser::Parse() {
     std::vector<std::unique_ptr<Statement>> statements;
     while(!isAtEnd()) {
-        statements.push_back(statement());
+        statements.push_back(declaration());
     }
     return statements;
 }
@@ -28,6 +28,26 @@ bool Parser::match(TokenType type) {
     }
     return false;
 }
+
+
+std::unique_ptr<Statement> Parser::declaration() {
+    if (match(TokenType::VAR)) {
+        return var_declaration();
+    }
+    return statement();
+}
+
+
+std::unique_ptr<Statement> Parser::var_declaration() {
+    Token name = consume(TokenType::IDENTIFIER, "Expect variable name");
+    std::unique_ptr<Expression> init = nullptr;
+    if (match(TokenType::EQUAL)) {
+        init = expression();
+    }
+    consume(TokenType::SEMICOLON, "Expect ';' after variable declaration");
+    return std::make_unique<VarStatement>(name, std::move(init));
+}
+
 
 
 std::unique_ptr<Statement> Parser::statement() {
@@ -62,7 +82,7 @@ std::unique_ptr<Expression> Parser::equality() {
 
     while(match(TokenType::BANG_EQUAL) || match(TokenType::EQUAL_EQUAL)) {
         Token op = previous();
-        std::unique_ptr<Expression> right = comparison();
+        auto right = comparison();
         expr = std::make_unique<BinaryExpression>(op, std::move(expr), std::move(right));
     }
 
@@ -76,7 +96,7 @@ std::unique_ptr<Expression> Parser::comparison() {
     while(match(TokenType::GREATER) || match(TokenType::GREATER_EQUAL) ||
           match(TokenType::LESS) || match(TokenType::LESS_EQUAL)) {
         Token op = previous();
-        std::unique_ptr<Expression> right = addition();
+        auto right = addition();
         expr = std::make_unique<BinaryExpression>(op, std::move(expr), std::move(right));
     }
 
@@ -89,7 +109,7 @@ std::unique_ptr<Expression> Parser::addition() {
 
     while(match(TokenType::PLUS) || match(TokenType::MINUS)) {
         Token op = previous();
-        std::unique_ptr<Expression> right = multiplication();
+        auto right = multiplication();
         expr = std::make_unique<BinaryExpression>(op, std::move(expr), std::move(right));
     }
 
@@ -102,7 +122,7 @@ std::unique_ptr<Expression> Parser::multiplication() {
 
     while(match(TokenType::STAR) || match(TokenType::SLASH)) {
         Token op = previous();
-        std::unique_ptr<Expression> right = unary();
+        auto right = unary();
         expr = std::make_unique<BinaryExpression>(op, std::move(expr), std::move(right));
     }
 
@@ -113,7 +133,7 @@ std::unique_ptr<Expression> Parser::multiplication() {
 std::unique_ptr<Expression> Parser::unary() {
     if (match(TokenType::BANG) || match(TokenType::MINUS) || match(TokenType::PLUS))  {
         Token op = previous();
-        std::unique_ptr<Expression> right = unary();
+        auto right = unary();
         return std::make_unique<UnaryExpression>(op, std::move(right));
     }
     return primary();
@@ -141,8 +161,12 @@ std::unique_ptr<Expression> Parser::primary() {
         return std::make_unique<LiteralExpression>(previous().literal);
     }
 
+    if (match(TokenType::IDENTIFIER)) {
+        return std::make_unique<VariableExpression>(previous());
+    }
+
     if (match(TokenType::LEFT_PAREN)) {
-        std::unique_ptr<Expression> expr = expression();
+        auto expr = expression();
         consume(TokenType::RIGHT_PAREN, "Expect ')' right after expression");
         return std::make_unique<GroupingExpression>(std::move(expr));
     }

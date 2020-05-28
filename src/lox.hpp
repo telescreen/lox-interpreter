@@ -4,6 +4,7 @@
 #include <string>
 
 #include <linenoise.h>
+#include <fmt/format.h>
 
 #include "scanner.h"
 #include "token.h"
@@ -14,8 +15,7 @@
 class Lox {
 public:
     static void Report(int line, std::string where, const std::string& message) {
-        std::cerr << "[line: " << line << "]"
-                  << where << ": " << message << std::endl;
+        fmt::print(stderr, "[line: {}] {}: {}\n", line, where, message);
     }
 
 
@@ -38,6 +38,8 @@ public:
         linenoiseHistoryLoad("history.txt");
 
         char *buffer;
+        Interpreter interpreter;
+
         while ((buffer=linenoise(">>> ")) != NULL) {
             linenoiseHistoryAdd(buffer);
             linenoiseHistorySave("history.txt");
@@ -49,9 +51,10 @@ public:
                     auto tokens = scanner.ScanTokens();
                     Parser parser(tokens);
                     auto stmts = parser.Parse();
-                    Interpreter interpreter;
                     interpreter.Interpret(stmts);
                 } catch(ParserError& e) {
+                } catch(RuntimeError& e) {
+                    Lox::Error(e.GetToken(), e.what());
                 }
             }
 
