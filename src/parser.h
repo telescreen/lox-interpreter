@@ -21,7 +21,9 @@
    statement      → expressionStatement
                   | printStatement ;
    expressionStatement → expression ;
-   expression     → equality ;
+   expression     → assigment ;
+   assignment     → IDENTIFIER "=" assigment
+                  | equality ;
    equality       → comparison ( ( "!=" | "==" ) comparison )* ;
    comparison     → addition ( ( ">" | ">=" | "<" | "<=" ) addition )* ;
    addition       → multiplication ( ( "-" | "+" ) multiplication )* ;
@@ -57,6 +59,8 @@ private:
     std::unique_ptr<Statement> var_declaration();
 
     std::unique_ptr<Expression> expression();
+
+    std::unique_ptr<Expression> assignment();
 
     std::unique_ptr<Expression> equality();
 

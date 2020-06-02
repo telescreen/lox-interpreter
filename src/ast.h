@@ -14,6 +14,7 @@ class UnaryExpression;
 class GroupingExpression;
 class LiteralExpression;
 class VariableExpression;
+class AssignmentExpression;
 
 
 // Abstract Class
@@ -45,6 +46,7 @@ public:
         virtual void Visit(GroupingExpression& expr) = 0;
         virtual void Visit(LiteralExpression& expr) = 0;
         virtual void Visit(VariableExpression& expr) = 0;
+        virtual void Visit(AssignmentExpression& expr) = 0;
     };
 
     virtual void Accept(Visitor& visitor) = 0;
@@ -143,5 +145,14 @@ public:
 };
 
 
+class AssignmentExpression: public Expression {
+public:
+    Token name;
+    std::unique_ptr<Expression> value;
+    AssignmentExpression(Token name, std::unique_ptr<Expression> value)
+        : name(name), value(std::move(value)) {
+    }
+    MAKE_EXPR_VISITABLE
+};
 
 #endif

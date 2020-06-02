@@ -116,6 +116,11 @@ public:
         value = environment.Get(expr.token);
     }
 
+    void Visit(AssignmentExpression& expr) override {
+        Value value = Evaluate(*expr.value);
+        environment.Assign(expr.name, value);
+    }
+
 private:
     void assertNumber(const Token &token, const Value& left, const Value& right) {
         if (left.value_type != Value::NUMBER || right.value_type != Value::NUMBER) {

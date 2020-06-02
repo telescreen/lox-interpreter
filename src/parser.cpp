@@ -73,7 +73,22 @@ std::unique_ptr<Statement> Parser::expression_statement() {
 
 
 std::unique_ptr<Expression> Parser::expression() {
-    return equality();
+    return assignment();
+}
+
+
+std::unique_ptr<Expression> Parser::assignment() {
+    auto expr = equality();
+    if (match(TokenType::EQUAL)) {
+        Token equals = previous();
+        auto value = assignment();
+        if (VariableExpression* v = dynamic_cast<VariableExpression*>(expr.get())) {
+            Token name = v->token;
+            return std::make_unique<AssignmentExpression>(name, std::move(value));
+        }
+        throw error(equals, "Invalid assignment targets");
+    }
+    return expr;
 }
 
 

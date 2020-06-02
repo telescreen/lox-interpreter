@@ -11,6 +11,14 @@ public:
         env.insert(std::pair<std::string, Value>(name, value));
     }
 
+    void Assign(const Token &name, const Value& value) {
+        if (env.find(name.lexeme) != env.end()) {
+            env[name.lexeme] = value;
+            return;
+        }
+        throw RuntimeError(name, "Variable undefined");
+    }
+
     Value Get(Token name) {
         if (env.find(name.lexeme) != env.end()) {
             return env[name.lexeme];
