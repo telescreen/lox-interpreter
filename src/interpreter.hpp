@@ -12,7 +12,6 @@
 
 
 class Interpreter: public Expression::Visitor, public Statement::Visitor {
-
 public:
     Value Evaluate(Expression& p) {
         p.Accept(*this);
@@ -42,7 +41,15 @@ public:
         if (stmt.init) {
             val = Evaluate(*stmt.init);
         }
-        environment.Define(stmt.token.lexeme, val);
+        environment->Define(stmt.token.lexeme, val);
+    }
+
+
+    void Visit(Block& stmt) override {
+        Environment* previous = environment.release();
+        environment.reset(new Environment(previous));
+        Interpret(stmt.statements);
+        environment.reset(previous);
     }
 
 
@@ -113,12 +120,13 @@ public:
 
 
     void Visit(VariableExpression& expr) override {
-        value = environment.Get(expr.token);
+        value = environment->Get(expr.token);
     }
+
 
     void Visit(AssignmentExpression& expr) override {
         Value value = Evaluate(*expr.value);
-        environment.Assign(expr.name, value);
+        environment->Assign(expr.name, value);
     }
 
 private:
@@ -130,7 +138,7 @@ private:
 
 private:
     Value value;
-    Environment environment;
+    std::unique_ptr<Environment> environment = std::make_unique<Environment>();
 };
 
 #endif

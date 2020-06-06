@@ -9,6 +9,7 @@
 class PrintStatement;
 class ExpressionStatement;
 class VarStatement;
+class Block;
 class BinaryExpression;
 class UnaryExpression;
 class GroupingExpression;
@@ -27,6 +28,7 @@ public:
         virtual void Visit(PrintStatement& stmt) = 0;
         virtual void Visit(ExpressionStatement& stmt) = 0;
         virtual void Visit(VarStatement& stmt) = 0;
+        virtual void Visit(Block& stmt) = 0;
     };
 
     virtual void Accept(Visitor &visitor) = 0;
@@ -90,6 +92,16 @@ public:
 
     Token token;
     std::unique_ptr<Expression> init;
+};
+
+
+class Block: public Statement {
+public:
+    Block(std::vector<std::unique_ptr<Statement>>& stmts)
+        : statements(std::move(stmts)) {
+    }
+    MAKE_STMT_VISITABLE
+    std::vector<std::unique_ptr<Statement>> statements;
 };
 
 

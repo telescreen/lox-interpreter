@@ -19,7 +19,9 @@
                   | statement
    varDecl        → "var" IDENTIFIER ("=" expression)? ";"
    statement      → expressionStatement
-                  | printStatement ;
+                  | printStatement
+                  | block ;
+   block          → "{"  declaration* "}" ;
    expressionStatement → expression ;
    expression     → assigment ;
    assignment     → IDENTIFIER "=" assigment
@@ -51,6 +53,8 @@ private:
     std::unique_ptr<Statement> statement();
 
     std::unique_ptr<Statement> declaration();
+
+    std::unique_ptr<Statement> block();
 
     std::unique_ptr<Statement> print_statement();
 

@@ -23,7 +23,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 endif()
 
 option(BUILD_EXAMPLE "Build examples (Including programs that are unrelated to lox interpreter)" OFF)
-
 if ("${BUILD_EXAMPLE}")
     add_subdirectory(example)
   endif()
