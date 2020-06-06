@@ -5,7 +5,6 @@
 #include <fmt/format.h>
 
 #include "ast.h"
-#include "lox.hpp"
 #include "value.hpp"
 #include "lox_exception.hpp"
 #include "environment.hpp"
@@ -24,6 +23,7 @@ public:
         }
     }
 
+
     // Statement::Visitor Interface methods
     void Visit(PrintStatement& stmt) override {
         Value value = Evaluate(*stmt.expression);
@@ -32,7 +32,8 @@ public:
 
 
     void Visit(ExpressionStatement& stmt) override {
-        Evaluate(*stmt.expression);
+        Value value = Evaluate(*stmt.expression);
+        fmt::print(fmt::format("{}\n", value));
     }
 
 
@@ -136,7 +137,6 @@ private:
         }
     }
 
-private:
     Value value;
     std::unique_ptr<Environment> environment = std::make_unique<Environment>();
 };

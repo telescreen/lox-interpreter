@@ -1,3 +1,4 @@
+include(FetchContent)
 FetchContent_Declare(
   linenoise
   GIT_REPOSITORY https://github.com/antirez/linenoise.git
@@ -5,10 +6,16 @@ FetchContent_Declare(
  )
 FetchContent_MakeAvailable(linenoise)
 
-if(linenoise_POPULATED)
-  message(STATUS, "linenoise source dir: ${linenoise_SOURCE_DIR}")
-  message(STATUS, "linenoise binary dir: ${linenoise_BINARY_DIR}")
-endif(linenoise_POPULATED)
+#########################
+# Fetch library         #
+#########################
+include(FetchContent)
+FetchContent_Declare(
+  fmtlib
+  GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+  GIT_TAG        5.3.0
+)
+FetchContent_MakeAvailable(fmtlib)
 
 
 add_executable(lox
