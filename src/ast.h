@@ -9,6 +9,7 @@
 class PrintStatement;
 class ExpressionStatement;
 class VarStatement;
+class IfStatement;
 class Block;
 class BinaryExpression;
 class UnaryExpression;
@@ -28,6 +29,7 @@ public:
         virtual void Visit(PrintStatement& stmt) = 0;
         virtual void Visit(ExpressionStatement& stmt) = 0;
         virtual void Visit(VarStatement& stmt) = 0;
+        virtual void Visit(IfStatement& stmt) = 0;
         virtual void Visit(Block& stmt) = 0;
     };
 
@@ -80,6 +82,22 @@ public:
     MAKE_STMT_VISITABLE
 
     std::unique_ptr<Expression> expression;
+};
+
+
+class IfStatement: public Statement {
+public:
+    IfStatement(std::unique_ptr<Expression> expression,
+                std::unique_ptr<Statement> thenBranch,
+                std::unique_ptr<Statement> elseBranch):
+        expression(std::move(expression)), thenBranch(std::move(thenBranch)), elseBranch(std::move(elseBranch)) {
+    }
+
+    MAKE_STMT_VISITABLE
+
+    std::unique_ptr<Expression> expression;
+    std::unique_ptr<Statement> thenBranch;
+    std::unique_ptr<Statement> elseBranch;
 };
 
 

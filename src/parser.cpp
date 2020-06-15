@@ -51,6 +51,9 @@ std::unique_ptr<Statement> Parser::var_declaration() {
 
 
 std::unique_ptr<Statement> Parser::statement() {
+    if (match(TokenType::IF)) {
+        return if_statement();
+    }
     if (match(TokenType::PRINT)) {
         return print_statement();
     }
@@ -58,6 +61,21 @@ std::unique_ptr<Statement> Parser::statement() {
         return block();
     }
     return expression_statement();
+}
+
+
+std::unique_ptr<Statement> Parser::if_statement() {
+    consume(TokenType::LEFT_PAREN, "Expect '(' after if");
+    auto condition = expression();
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after if condition");
+
+    auto thenBranch = statement();
+    std::unique_ptr<Statement> elseBranch = nullptr;
+    if (match(TokenType::ELSE)) {
+        elseBranch = std::move(statement());
+    }
+    return std::make_unique<IfStatement>(std::move(condition),
+        std::move(thenBranch), std::move(elseBranch));
 }
 
 

@@ -12,11 +12,6 @@
 
 class Interpreter: public Expression::Visitor, public Statement::Visitor {
 public:
-    Value Evaluate(Expression& p) {
-        p.Accept(*this);
-        return value;
-    }
-
     void Interpret(const std::vector<std::unique_ptr<Statement>>& statements) {
         for(auto& statement: statements) {
             statement->Accept(*this);
@@ -26,13 +21,13 @@ public:
 
     // Statement::Visitor Interface methods
     void Visit(PrintStatement& stmt) override {
-        Value value = Evaluate(*stmt.expression);
+        Value value = evaluate(*stmt.expression);
         fmt::print(fmt::format("{}\n", value));
     }
 
 
     void Visit(ExpressionStatement& stmt) override {
-        Value value = Evaluate(*stmt.expression);
+        Value value = evaluate(*stmt.expression);
         fmt::print(fmt::format("{}\n", value));
     }
 
@@ -40,9 +35,18 @@ public:
     void Visit(VarStatement& stmt) override {
         Value val;
         if (stmt.init) {
-            val = Evaluate(*stmt.init);
+            val = evaluate(*stmt.init);
         }
         environment->Define(stmt.token.lexeme, val);
+    }
+
+    void Visit(IfStatement& stmt) override {
+        Value cond = evaluate(*stmt.expression);
+        if (cond) {
+            evaluate(*stmt.thenBranch);
+        } else if (stmt.elseBranch != nullptr) {
+            evaluate(*stmt.elseBranch);
+        }
     }
 
 
@@ -56,8 +60,8 @@ public:
 
     // Expression::Visitor Interface methods
     void Visit(BinaryExpression& expr) override {
-        Value left = Evaluate(*expr.left);
-        Value right = Evaluate(*expr.right);
+        Value left = evaluate(*expr.left);
+        Value right = evaluate(*expr.right);
 
         switch(expr.op.type) {
         case TokenType::PLUS:
@@ -98,7 +102,7 @@ public:
     }
 
     void Visit(UnaryExpression& expr) override {
-        Value val = Evaluate(*expr.expression);
+        Value val = evaluate(*expr.expression);
         assertNumber(expr.op, val, val);
         switch(expr.op.type) {
         case TokenType::MINUS:
@@ -111,7 +115,7 @@ public:
     }
 
     void Visit(GroupingExpression& expr) override {
-        value = Evaluate(*expr.expression);
+        value = evaluate(*expr.expression);
     }
 
 
@@ -126,11 +130,20 @@ public:
 
 
     void Visit(AssignmentExpression& expr) override {
-        Value value = Evaluate(*expr.value);
+        Value value = evaluate(*expr.value);
         environment->Assign(expr.name, value);
     }
 
 private:
+    Value evaluate(Expression& p) {
+        p.Accept(*this);
+        return value;
+    }
+
+    void evaluate(Statement& s) {
+        s.Accept(*this);
+    }
+
     void assertNumber(const Token &token, const Value& left, const Value& right) {
         if (left.value_type != Value::NUMBER || right.value_type != Value::NUMBER) {
             throw RuntimeError(token, "Operand must be a number");
