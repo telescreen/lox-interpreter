@@ -40,4 +40,17 @@ public:
     }
 };
 
+class TypeError: public std::exception {
+    const char *message;
+public:
+
+    TypeError(const char* message)
+        : message(message) {
+    }
+
+    virtual const char* what() const throw() {
+        return message;
+    }
+};
+
 #endif

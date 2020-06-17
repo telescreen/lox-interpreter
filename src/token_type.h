@@ -2,6 +2,7 @@
 #define LOX_TOKEN_TYPE_H
 
 #include <iostream>
+#include <map>
 
 enum class TokenType {
     TEOF,
@@ -24,6 +25,8 @@ enum class TokenType {
     AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR,
     PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
 };
+
+const char* TT2String(TokenType type);
 std::ostream& operator<<(std::ostream &os, const TokenType &tokenType);
 
 #endif // LOX_TOKEN_TYPE_H

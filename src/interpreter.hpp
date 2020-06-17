@@ -42,6 +42,8 @@ public:
 
     void Visit(IfStatement& stmt) override {
         Value cond = evaluate(*stmt.expression);
+        // TODO (telescreen): Check type of cond.
+        // Only continue if cond can be evaluated to BOOL
         if (cond) {
             evaluate(*stmt.thenBranch);
         } else if (stmt.elseBranch != nullptr) {
@@ -123,6 +125,18 @@ public:
         value = expr.value;
     }
 
+    void Visit(LogicalExpression& expr) override {
+        Value left = evaluate(*expr.left);
+        if (expr.op.type == TokenType::OR) {
+            if (left) value = left;
+            return;
+        } else {
+            if (!left) value = left;
+            return;
+        }
+        value = evaluate(*expr.right);
+    }
+
 
     void Visit(VariableExpression& expr) override {
         value = environment->Get(expr.token);
@@ -145,7 +159,8 @@ private:
     }
 
     void assertNumber(const Token &token, const Value& left, const Value& right) {
-        if (left.value_type != Value::NUMBER || right.value_type != Value::NUMBER) {
+        if (left.value_type != Value::ValueType::NUMBER ||
+            right.value_type != Value::ValueType::NUMBER) {
             throw RuntimeError(token, "Operand must be a number");
         }
     }

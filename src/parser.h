@@ -27,7 +27,9 @@
    expressionStatement → expression ;
    expression     → assigment ;
    assignment     → IDENTIFIER "=" assigment
-                  | equality ;
+                  | logic_or ;
+   logic_or       → logic_and ( "or" logic_and)* ;
+   logic_and      → equality ( "and" equality )* ;
    equality       → comparison ( ( "!=" | "==" ) comparison )* ;
    comparison     → addition ( ( ">" | ">=" | "<" | "<=" ) addition )* ;
    addition       → multiplication ( ( "-" | "+" ) multiplication )* ;
@@ -71,6 +73,10 @@ private:
     std::unique_ptr<Expression> assignment();
 
     std::unique_ptr<Expression> equality();
+
+    std::unique_ptr<Expression> logic_or();
+
+    std::unique_ptr<Expression> logic_and();
 
     std::unique_ptr<Expression> comparison();
 

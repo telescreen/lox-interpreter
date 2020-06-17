@@ -15,6 +15,7 @@ class BinaryExpression;
 class UnaryExpression;
 class GroupingExpression;
 class LiteralExpression;
+class LogicalExpression;
 class VariableExpression;
 class AssignmentExpression;
 
@@ -51,6 +52,7 @@ public:
         virtual void Visit(LiteralExpression& expr) = 0;
         virtual void Visit(VariableExpression& expr) = 0;
         virtual void Visit(AssignmentExpression& expr) = 0;
+        virtual void Visit(LogicalExpression& expr) = 0;
     };
 
     virtual void Accept(Visitor& visitor) = 0;
@@ -161,6 +163,17 @@ class LiteralExpression: public Expression {
 public:
     Value value;
     LiteralExpression(Value value): value(value) {
+    }
+    MAKE_EXPR_VISITABLE
+};
+
+
+class LogicalExpression: public Expression {
+public:
+    Token op;
+    std::unique_ptr<Expression> left, right;
+    LogicalExpression(std::unique_ptr<Expression> left, Token op, std::unique_ptr<Expression> right)
+        : left(std::move(left)), op(op), right(std::move(right)) {
     }
     MAKE_EXPR_VISITABLE
 };

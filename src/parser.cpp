@@ -112,7 +112,7 @@ std::unique_ptr<Expression> Parser::expression() {
 
 
 std::unique_ptr<Expression> Parser::assignment() {
-    auto expr = equality();
+    auto expr = logic_or();
     if (match(TokenType::EQUAL)) {
         Token equals = previous();
         auto value = assignment();
@@ -134,7 +134,28 @@ std::unique_ptr<Expression> Parser::equality() {
         auto right = comparison();
         expr = std::make_unique<BinaryExpression>(op, std::move(expr), std::move(right));
     }
+    return expr;
+}
 
+
+std::unique_ptr<Expression> Parser::logic_or() {
+    auto expr = logic_and();
+    while (match(TokenType::OR)) {
+        Token op = previous();
+        auto right = logic_and();
+        expr = std::make_unique<LogicalExpression>(std::move(expr), op, std::move(right));
+    }
+    return expr;
+}
+
+
+std::unique_ptr<Expression> Parser::logic_and() {
+    auto expr = equality();
+    while (match(TokenType::AND)) {
+        Token op = previous();
+        auto right = equality();
+        expr = std::make_unique<LogicalExpression>(std::move(expr), op, std::move(right));
+    }
     return expr;
 }
 
