@@ -143,6 +143,9 @@ public:
         case Value::ValueType::STRING:
             ret = comparator(lhs.text, rhs.text);
             break;
+        case Value::ValueType::NUL:
+            ret = rhs.value_type == Value::ValueType::NUL;
+            break;
         }
         return ret;
     }

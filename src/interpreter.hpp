@@ -99,6 +99,9 @@ public:
         case TokenType::BANG_EQUAL:
             value = left != right;
             break;
+        default:
+            throw RuntimeError(expr.op, "Unknown Binary Operand");
+            break;
         }
 
     }
@@ -112,6 +115,9 @@ public:
             break;
         case TokenType::PLUS:
             value = val;
+            break;
+        default:
+            throw RuntimeError(expr.op, "Unknown Unary Operand");
             break;
         }
     }
