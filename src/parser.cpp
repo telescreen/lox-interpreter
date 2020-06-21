@@ -57,6 +57,12 @@ std::unique_ptr<Statement> Parser::statement() {
     if (match(TokenType::PRINT)) {
         return print_statement();
     }
+    if (match(TokenType::WHILE)) {
+        return while_statement();
+    }
+    if (match(TokenType::FOR)) {
+        return for_statement();
+    }
     if (match(TokenType::LEFT_BRACE)) {
         return block();
     }
@@ -83,6 +89,61 @@ std::unique_ptr<Statement> Parser::print_statement() {
     auto expr = expression();
     consume(TokenType::SEMICOLON, "Expect ';' after a statement");
     return std::make_unique<PrintStatement>(std::move(expr));
+}
+
+
+std::unique_ptr<Statement> Parser::while_statement() {
+    consume(TokenType::LEFT_PAREN, "Expect '(' after the while keyword");
+    auto expr = expression();
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after the while expression");
+    auto stmt = statement();
+    return std::make_unique<WhileStatement>(std::move(expr), std::move(stmt));
+}
+
+
+std::unique_ptr<Statement> Parser::for_statement() {
+    consume(TokenType::LEFT_PAREN, "Expect '(' after the for keyword");
+    std::unique_ptr<Statement> initializer = nullptr;
+    if (match(TokenType::SEMICOLON)) {
+        initializer = nullptr;
+    } else if (match(TokenType::VAR)) {
+        initializer = var_declaration();
+    } else {
+        initializer = expression_statement();
+    }
+
+    std::unique_ptr<Expression> cond = nullptr;
+    if (!check(TokenType::SEMICOLON)) {
+        cond = expression();
+    } else {
+        cond = std::make_unique<LiteralExpression>(true);
+    }
+    consume(TokenType::SEMICOLON, "Expect ';' after loop condition");
+
+    std::unique_ptr<Expression> increment = nullptr;
+    if (!check(TokenType::RIGHT_PAREN)) {
+        increment = expression();
+    }
+    consume(TokenType::RIGHT_PAREN, "Expect ')' after a for clause");
+
+    std::unique_ptr<Statement> body = statement();
+
+    if (increment != nullptr) {
+        std::vector<std::unique_ptr<Statement>> stmts;
+        stmts.push_back(std::move(body));
+        stmts.push_back(std::make_unique<ExpressionStatement>(std::move(increment)));
+        body = std::make_unique<Block>(stmts);
+    }
+    body = std::make_unique<WhileStatement>(std::move(cond), std::move(body));
+
+    if (initializer != nullptr) {
+        std::vector<std::unique_ptr<Statement>> stmts;
+        stmts.push_back(std::move(initializer));
+        stmts.push_back(std::move(body));
+        body = std::make_unique<Block>(stmts);
+    }
+
+    return body;
 }
 
 

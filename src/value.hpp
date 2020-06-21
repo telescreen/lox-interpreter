@@ -16,14 +16,14 @@
 class Value {
 public:
     enum class ValueType { NUMBER, BOOL, STRING, NUL } value_type;
-    static const char* value_type_string(ValueType vtype) {
+    const char* value_type_string() const {
         const std::map<ValueType, const char*> value_type_enum {
             { ValueType::NUMBER, "Number" },
             { ValueType::BOOL, "Boolean" },
             { ValueType::STRING, "String" },
             { ValueType::NUL, "Null" },
         };
-        auto it  = value_type_enum.find(vtype);
+        auto it  = value_type_enum.find(value_type);
         return it == value_type_enum.end() ? "Unknown type" : it->second;
     };
 
@@ -65,8 +65,7 @@ public:
             break;
         default:
             throw TypeError(fmt::format("unsupported operand type(s) for +: {} and {}",
-                                        Value::value_type_string(lhs.value_type),
-                                        Value::value_type_string(rhs.value_type)).c_str());
+                                        lhs.value_type_string(), rhs.value_type_string()).c_str());
             break;
         }
         return val;

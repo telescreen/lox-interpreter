@@ -10,6 +10,7 @@ class PrintStatement;
 class ExpressionStatement;
 class VarStatement;
 class IfStatement;
+class WhileStatement;
 class Block;
 class BinaryExpression;
 class UnaryExpression;
@@ -31,6 +32,7 @@ public:
         virtual void Visit(ExpressionStatement& stmt) = 0;
         virtual void Visit(VarStatement& stmt) = 0;
         virtual void Visit(IfStatement& stmt) = 0;
+        virtual void Visit(WhileStatement& stmt) = 0;
         virtual void Visit(Block& stmt) = 0;
     };
 
@@ -67,61 +69,74 @@ using ExpressionUPtr = std::unique_ptr<Expression>;
 /* Statement Declaration */
 class PrintStatement: public Statement {
 public:
+    std::unique_ptr<Expression> expression;
+
     PrintStatement(std::unique_ptr<Expression> expression):
         expression(std::move(expression)) {
     }
     MAKE_STMT_VISITABLE
-
-    std::unique_ptr<Expression> expression;
 };
 
 
 class ExpressionStatement: public Statement {
 public:
+    std::unique_ptr<Expression> expression;
+
     ExpressionStatement(std::unique_ptr<Expression> expression):
         expression(std::move(expression)) {
     }
     MAKE_STMT_VISITABLE
-
-    std::unique_ptr<Expression> expression;
 };
 
 
 class IfStatement: public Statement {
 public:
+    std::unique_ptr<Expression> expression;
+    std::unique_ptr<Statement> thenBranch;
+    std::unique_ptr<Statement> elseBranch;
+
     IfStatement(std::unique_ptr<Expression> expression,
                 std::unique_ptr<Statement> thenBranch,
                 std::unique_ptr<Statement> elseBranch):
         expression(std::move(expression)), thenBranch(std::move(thenBranch)), elseBranch(std::move(elseBranch)) {
     }
-
     MAKE_STMT_VISITABLE
-
-    std::unique_ptr<Expression> expression;
-    std::unique_ptr<Statement> thenBranch;
-    std::unique_ptr<Statement> elseBranch;
 };
 
 
 class VarStatement: public Statement {
 public:
+    Token token;
+    std::unique_ptr<Expression> init;
+
     VarStatement(Token token, std::unique_ptr<Expression> init):
         token(token), init(std::move(init)) {
     }
     MAKE_STMT_VISITABLE
+};
 
-    Token token;
-    std::unique_ptr<Expression> init;
+
+class WhileStatement: public Statement {
+public:
+    std::unique_ptr<Expression> expression;
+    std::unique_ptr<Statement> statement;
+
+    WhileStatement(std::unique_ptr<Expression> expression,
+                   std::unique_ptr<Statement> statement):
+        expression(std::move(expression)),
+        statement(std::move(statement)) {
+    }
+    MAKE_STMT_VISITABLE
 };
 
 
 class Block: public Statement {
 public:
+    std::vector<std::unique_ptr<Statement>> statements;
     Block(std::vector<std::unique_ptr<Statement>>& stmts)
         : statements(std::move(stmts)) {
     }
     MAKE_STMT_VISITABLE
-    std::vector<std::unique_ptr<Statement>> statements;
 };
 
 

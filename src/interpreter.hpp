@@ -1,6 +1,8 @@
 #ifndef LOX_EVALUATOR_HPP
 #define LOX_EVALUATOR_HPP
 
+#include <typeinfo>
+
 #include <fmt/ostream.h>
 #include <fmt/format.h>
 
@@ -14,10 +16,19 @@ class Interpreter: public Expression::Visitor, public Statement::Visitor {
 public:
     void Interpret(const std::vector<std::unique_ptr<Statement>>& statements) {
         for(auto& statement: statements) {
-            statement->Accept(*this);
+            evaluate(*statement);
+
+            // TODO(telescreen): How to get rid of this dynamic type check and cast?
+            auto pstmt = statement.get();
+            if (typeid(*pstmt) == typeid(ExpressionStatement)) {
+                auto expr = dynamic_cast<ExpressionStatement*>(pstmt);
+                auto pexpr = expr->expression.get();
+                if (typeid(*pexpr) != typeid(AssignmentExpression)) {
+                    fmt::print(fmt::format("{}\n", value));
+                }
+            }
         }
     }
-
 
     // Statement::Visitor Interface methods
     void Visit(PrintStatement& stmt) override {
@@ -25,12 +36,9 @@ public:
         fmt::print(fmt::format("{}\n", value));
     }
 
-
     void Visit(ExpressionStatement& stmt) override {
-        Value value = evaluate(*stmt.expression);
-        fmt::print(fmt::format("{}\n", value));
+        evaluate(*stmt.expression);
     }
-
 
     void Visit(VarStatement& stmt) override {
         Value val;
@@ -51,6 +59,11 @@ public:
         }
     }
 
+    void Visit(WhileStatement& stmt) override {
+        while (evaluate(*stmt.expression)) {
+            evaluate(*stmt.statement);
+        }
+    }
 
     void Visit(Block& stmt) override {
         Environment* previous = environment.release();
@@ -58,7 +71,6 @@ public:
         Interpret(stmt.statements);
         environment.reset(previous);
     }
-
 
     // Expression::Visitor Interface methods
     void Visit(BinaryExpression& expr) override {
@@ -103,7 +115,6 @@ public:
             throw RuntimeError(expr.op, "Unknown Binary Operand");
             break;
         }
-
     }
 
     void Visit(UnaryExpression& expr) override {
@@ -143,15 +154,13 @@ public:
         value = evaluate(*expr.right);
     }
 
-
     void Visit(VariableExpression& expr) override {
         value = environment->Get(expr.token);
     }
 
-
     void Visit(AssignmentExpression& expr) override {
-        Value value = evaluate(*expr.value);
-        environment->Assign(expr.name, value);
+        Value val = evaluate(*expr.value);
+        environment->Assign(expr.name, val);
     }
 
 private:
@@ -171,7 +180,7 @@ private:
         }
     }
 
-    Value value;
+    Value value;   // This is the global variable that store value for all expression evaluation
     std::unique_ptr<Environment> environment = std::make_unique<Environment>();
 };
 

@@ -18,11 +18,9 @@ public:
         fmt::print(stderr, "[line: {}] {}: {}\n", line, where, message);
     }
 
-
     static void Error(int line, const std::string& message) {
         Report(line, "", message);
     }
-
 
     static void Error(Token token, const std::string& message) {
         if (token.type == TokenType::TEOF) {
@@ -32,35 +30,38 @@ public:
         }
     }
 
+    void Interpret(const char* buffer) {
+        try {
+            Scanner scanner(buffer);
+            auto tokens = scanner.ScanTokens();
+            Parser parser(tokens);
+            auto stmts = parser.Parse();
+            interpreter.Interpret(stmts);
+        } catch(ParserError& e) {
+        } catch(RuntimeError& e) {
+            Lox::Error(e.GetToken(), e.what());
+        }
+    }
 
     void Prompt() {
         linenoiseSetMultiLine(1);
         linenoiseHistoryLoad("history.txt");
 
         char *buffer;
-        Interpreter interpreter;
 
         while ((buffer=linenoise(">>> ")) != NULL) {
             linenoiseHistoryAdd(buffer);
             linenoiseHistorySave("history.txt");
 
             if (buffer[0] != '\0') {
-
-                try {
-                    Scanner scanner(buffer);
-                    auto tokens = scanner.ScanTokens();
-                    Parser parser(tokens);
-                    auto stmts = parser.Parse();
-                    interpreter.Interpret(stmts);
-                } catch(ParserError& e) {
-                } catch(RuntimeError& e) {
-                    Lox::Error(e.GetToken(), e.what());
-                }
+                Interpret(buffer);
             }
-
             linenoiseFree(buffer);
         }
     }
+
+private:
+    Interpreter interpreter;
 };
 
 
