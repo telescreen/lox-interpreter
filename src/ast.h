@@ -2,16 +2,20 @@
 #define LOX_AST_H
 
 #include <memory>
+#include <list>
+#include <vector>
+
 #include "token.h"
-#include "value.hpp"
+#include "value.h"
 
 
 class PrintStatement;
 class ExpressionStatement;
 class VarStatement;
 class IfStatement;
+class FunctionStatement;
 class WhileStatement;
-class Block;
+class BlockStatement;
 class BinaryExpression;
 class UnaryExpression;
 class GroupingExpression;
@@ -19,6 +23,7 @@ class LiteralExpression;
 class LogicalExpression;
 class VariableExpression;
 class AssignmentExpression;
+class CallExpression;
 
 
 // Abstract Class
@@ -33,7 +38,8 @@ public:
         virtual void Visit(VarStatement& stmt) = 0;
         virtual void Visit(IfStatement& stmt) = 0;
         virtual void Visit(WhileStatement& stmt) = 0;
-        virtual void Visit(Block& stmt) = 0;
+        virtual void Visit(BlockStatement& stmt) = 0;
+        virtual void Visit(FunctionStatement& stmt) = 0;
     };
 
     virtual void Accept(Visitor &visitor) = 0;
@@ -55,6 +61,7 @@ public:
         virtual void Visit(VariableExpression& expr) = 0;
         virtual void Visit(AssignmentExpression& expr) = 0;
         virtual void Visit(LogicalExpression& expr) = 0;
+        virtual void Visit(CallExpression& expr) = 0;
     };
 
     virtual void Accept(Visitor& visitor) = 0;
@@ -104,6 +111,21 @@ public:
 };
 
 
+class FunctionStatement: public Statement {
+public:
+    Token name;
+    std::vector<Token> params;
+    std::list<std::unique_ptr<Statement>> stmts;
+
+    FunctionStatement(Token name,
+                      std::vector<Token>& params,
+                      std::list<std::unique_ptr<Statement>>& stmts):
+        name(name), params(params), stmts(std::move(stmts)) {
+    }
+    MAKE_STMT_VISITABLE
+};
+
+
 class VarStatement: public Statement {
 public:
     Token token;
@@ -130,10 +152,11 @@ public:
 };
 
 
-class Block: public Statement {
+class BlockStatement: public Statement {
 public:
-    std::vector<std::unique_ptr<Statement>> statements;
-    Block(std::vector<std::unique_ptr<Statement>>& stmts)
+    std::list<std::unique_ptr<Statement>> statements;
+
+    BlockStatement(std::list<std::unique_ptr<Statement>>& stmts)
         : statements(std::move(stmts)) {
     }
     MAKE_STMT_VISITABLE
@@ -160,6 +183,21 @@ public:
     Token op;
     std::unique_ptr<Expression> expression;
     UnaryExpression(Token op, std::unique_ptr<Expression> rhs): op(op), expression(std::move(rhs)) {
+    }
+    MAKE_EXPR_VISITABLE
+};
+
+
+class CallExpression: public Expression {
+public:
+    std::unique_ptr<Expression> callee;
+    Token paren;
+    std::list<std::unique_ptr<Expression>> arguments;
+
+    CallExpression(std::unique_ptr<Expression> callee,
+                   Token paren,
+                   std::list<std::unique_ptr<Expression>>& arguments)
+        : callee(std::move(callee)), paren(paren), arguments(std::move(arguments)) {
     }
     MAKE_EXPR_VISITABLE
 };

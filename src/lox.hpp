@@ -9,7 +9,7 @@
 #include "scanner.h"
 #include "token.h"
 #include "parser.h"
-#include "interpreter.hpp"
+#include "interpreter.h"
 
 
 class Lox {

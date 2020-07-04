@@ -2,6 +2,8 @@
 #define LOX_EXCEPTION_HPP
 
 #include <exception>
+#include "token.h"
+
 
 class ParserError: public std::exception {
     const Token token;

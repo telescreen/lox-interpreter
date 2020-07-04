@@ -15,8 +15,10 @@
  * Grammar
 
    program        → declaration* EOF ;
-   declaration    → varDecl
+   declaration    → funDecl
+                  | varDecl
                   | statement
+   funDecl        → "fun" IDENTIFIER "(" parameters? ")" block ;
    varDecl        → "var" IDENTIFIER ("=" expression)? ";"
    statement      → expressionStatement
                   | ifStatement
@@ -39,11 +41,12 @@
    comparison     → addition ( ( ">" | ">=" | "<" | "<=" ) addition )* ;
    addition       → multiplication ( ( "-" | "+" ) multiplication )* ;
    multiplication → unary ( ( "/" | "*" ) unary )* ;
-   unary          → ( "!" | "-" ) unary
-                  | primary ;
+   unary          → ( "!" | "-" | "+") unary | call ;
+   call           → primary ( "(" arguments? ")" )* ;
+   arguments      → expression ("," expression)*
    primary        → NUMBER | STRING | "false" | "true" | "nil"
-                 | "(" expression ")" ;
-                 | IDENTIFIER
+                  | "(" expression ")" ;
+                  | IDENTIFIER
 */
 
 class Parser {
@@ -52,7 +55,7 @@ public:
     Parser(const std::vector<Token> &tokenList);
     virtual ~Parser();
 
-    std::vector<std::unique_ptr<Statement>> Parse();
+    std::list<std::unique_ptr<Statement>> Parse();
 
 private:
     bool match(TokenType type);
@@ -63,7 +66,7 @@ private:
 
     std::unique_ptr<Statement> declaration();
 
-    std::unique_ptr<Statement> block();
+    std::list<std::unique_ptr<Statement>> block();
 
     std::unique_ptr<Statement> print_statement();
 
@@ -76,6 +79,8 @@ private:
     std::unique_ptr<Statement> expression_statement();
 
     std::unique_ptr<Statement> var_declaration();
+
+    std::unique_ptr<Statement> fun_declaration(const char*);
 
     std::unique_ptr<Expression> expression();
 
@@ -94,6 +99,10 @@ private:
     std::unique_ptr<Expression> multiplication();
 
     std::unique_ptr<Expression> unary();
+
+    std::unique_ptr<Expression> call();
+
+    std::unique_ptr<Expression> finish_call(std::unique_ptr<Expression>);
 
     std::unique_ptr<Expression> primary();
 

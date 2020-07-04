@@ -24,6 +24,10 @@ add_executable(lox
   scanner.cpp
   token.cpp
   token_type.cpp
+  value.cpp
+  interpreter.cpp
+  lox_function.cpp
+  environment.cpp
   ${linenoise_SOURCE_DIR}/linenoise.c)
 
 target_compile_features(lox PUBLIC cxx_std_11)
