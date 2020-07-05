@@ -1,19 +1,20 @@
 #include <fmt/format.h>
 
 #include "value.h"
+#include "lox_exception.hpp"
 
 /* Value interpreted by the interpreter
    TODO(telescreen): Add Type checking
 */
 Value::Value(): value_type(ValueType::NUL) {}
 
-Value::Value(double number): number(number), value_type(ValueType::NUMBER) {}
+Value::Value(double number): value_type(ValueType::NUMBER), number(number) {}
 
-Value::Value(bool logic_value): logic_value(logic_value), value_type(ValueType::BOOL) {}
+Value::Value(bool logic_value): value_type(ValueType::BOOL), logic_value(logic_value) {}
 
-Value::Value(std::string text): text(text), value_type(ValueType::STRING) {}
+Value::Value(std::string text): value_type(ValueType::STRING), text(text) {}
 
-Value::Value(std::shared_ptr<LoxCallable> func): func(func), value_type(ValueType::FUNCTION) {}
+Value::Value(std::shared_ptr<LoxCallable> func): value_type(ValueType::FUNCTION), func(func) {}
 
     // TODO(telescreen): Add Type Checking
 Value::operator double() const { return number; }

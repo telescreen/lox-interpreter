@@ -25,11 +25,13 @@
                   | printStatement
                   | whileStatement
                   | forStatement
+                  | returnStatement
                   | block ;
    whileStatement → "while" "(" expression ")" statement;
    forStatement → "for" "(" varDecl | expressionStatement ";"
                             expression? ";" expression? ")" statement;
    ifStatement    → "if" "(" expression ")" statement ("else" statement)? ;
+   returnStatemtn → "return" expression? ;
    block          → "{"  declaration* "}" ;
    expressionStatement → expression ;
    expression     → assigment ;
@@ -71,6 +73,8 @@ private:
     std::unique_ptr<Statement> print_statement();
 
     std::unique_ptr<Statement> if_statement();
+
+    std::unique_ptr<Statement> return_statement();
 
     std::unique_ptr<Statement> while_statement();
 

@@ -2,9 +2,7 @@
 #include "lox.hpp"
 
 
-Parser::Parser(const std::vector<Token> &tokenList):
-    tokenList(tokenList),
-    current(0) {
+Parser::Parser(const std::vector<Token> &tokenList): current(0), tokenList(tokenList) {
 }
 
 
@@ -85,6 +83,9 @@ std::unique_ptr<Statement> Parser::statement() {
     if (match(TokenType::FOR)) {
         return for_statement();
     }
+    if (match(TokenType::RETURN)) {
+        return return_statement();
+    }
     if (match(TokenType::LEFT_BRACE)) {
         auto block_statement = block();
         return std::make_unique<BlockStatement>(block_statement);
@@ -101,7 +102,7 @@ std::unique_ptr<Statement> Parser::if_statement() {
     auto thenBranch = statement();
     std::unique_ptr<Statement> elseBranch = nullptr;
     if (match(TokenType::ELSE)) {
-        elseBranch = std::move(statement());
+        elseBranch = statement();
     }
     return std::make_unique<IfStatement>(std::move(condition),
         std::move(thenBranch), std::move(elseBranch));
@@ -112,6 +113,16 @@ std::unique_ptr<Statement> Parser::print_statement() {
     auto expr = expression();
     consume(TokenType::SEMICOLON, "Expect ';' after a statement");
     return std::make_unique<PrintStatement>(std::move(expr));
+}
+
+std::unique_ptr<Statement> Parser::return_statement() {
+    Token keyword = previous();
+    std::unique_ptr<Expression> value = nullptr;
+    if (!check(TokenType::SEMICOLON)) {
+        value = expression();
+    }
+    consume(TokenType::SEMICOLON, "Expect ';' after return value");
+    return std::make_unique<ReturnStatement>(keyword, std::move(value));
 }
 
 

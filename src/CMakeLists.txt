@@ -17,6 +17,10 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fmtlib)
 
+#add_compile_options(-O3 -pthread)
+add_compile_options(-Wall -pedantic -fstandalone-debug)
+add_link_options(-lc++abi)
+
 
 add_executable(lox
   main.cpp

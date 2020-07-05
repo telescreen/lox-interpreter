@@ -15,13 +15,6 @@ Interpreter::Interpreter() {
     environment->Define("clock", Value(clock_func));
 }
 
-void Interpreter::Interpret(const std::list<std::unique_ptr<Statement>>& statements,
-                std::shared_ptr<Environment>& environment) {
-    this->environment = environment;
-    Interpret(statements);
-    this->environment = this->environment->EnclosingScope();
-}
-
 void Interpreter::Interpret(const std::list<std::unique_ptr<Statement>>& statements) {
     for(auto& statement: statements) {
         evaluate(*statement);
@@ -72,6 +65,14 @@ void Interpreter::Visit(WhileStatement& stmt) {
     while (evaluate(*stmt.expression)) {
         evaluate(*stmt.statement);
     }
+}
+
+void Interpreter::Visit(ReturnStatement& stmt) {
+    Value val;
+    if (stmt.value != nullptr) {
+        val = evaluate(*stmt.value);
+    }
+    throw ReturnSignal(val);
 }
 
 void Interpreter::Visit(BlockStatement& stmt) {
@@ -156,7 +157,14 @@ void Interpreter::Visit(CallExpression& expr) {
         arguments.push_back(evaluate(*arg));
     }
 
+    // TODO (telescreen): Check to see whether callee is callable
     std::shared_ptr<LoxCallable> func = static_cast<std::shared_ptr<LoxCallable>>(callee);
+    if (arguments.size() != func->Arity()) {
+        throw new RuntimeError(expr.paren,
+            fmt::format("Expected %d arguments but got %d",
+                        func->Arity(), arguments.size()).c_str());
+    }
+
     value = func->Call(*this, arguments);
 }
 
@@ -193,6 +201,14 @@ void Interpreter::Visit(AssignmentExpression& expr) {
 
 std::shared_ptr<Environment> Interpreter::GlobalScope() {
     return globals;
+}
+
+std::shared_ptr<Environment> Interpreter::CurrentScope() {
+    return environment;
+}
+
+void Interpreter::SetScope(std::shared_ptr<Environment>& new_environment) {
+    environment = new_environment;
 }
 
 #endif

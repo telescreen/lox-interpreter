@@ -15,6 +15,7 @@ class VarStatement;
 class IfStatement;
 class FunctionStatement;
 class WhileStatement;
+class ReturnStatement;
 class BlockStatement;
 class BinaryExpression;
 class UnaryExpression;
@@ -37,6 +38,7 @@ public:
         virtual void Visit(ExpressionStatement& stmt) = 0;
         virtual void Visit(VarStatement& stmt) = 0;
         virtual void Visit(IfStatement& stmt) = 0;
+        virtual void Visit(ReturnStatement& stmt) = 0;
         virtual void Visit(WhileStatement& stmt) = 0;
         virtual void Visit(BlockStatement& stmt) = 0;
         virtual void Visit(FunctionStatement& stmt) = 0;
@@ -107,6 +109,16 @@ public:
                 std::unique_ptr<Statement> elseBranch):
         expression(std::move(expression)), thenBranch(std::move(thenBranch)), elseBranch(std::move(elseBranch)) {
     }
+    MAKE_STMT_VISITABLE
+};
+
+
+class ReturnStatement: public Statement {
+public:
+    Token keyword;
+    std::unique_ptr<Expression> value;
+    ReturnStatement(Token keyword, std::unique_ptr<Expression> value):
+        keyword(keyword), value(std::move(value)) {}
     MAKE_STMT_VISITABLE
 };
 
@@ -226,7 +238,7 @@ public:
     Token op;
     std::unique_ptr<Expression> left, right;
     LogicalExpression(std::unique_ptr<Expression> left, Token op, std::unique_ptr<Expression> right)
-        : left(std::move(left)), op(op), right(std::move(right)) {
+        : op(op), left(std::move(left)), right(std::move(right)) {
     }
     MAKE_EXPR_VISITABLE
 };

@@ -1,4 +1,5 @@
 #include "lox_function.h"
+#include "lox_exception.hpp"
 
 #include <time.h>
 
@@ -7,12 +8,27 @@ LoxFunction::LoxFunction(FunctionStatement& declaration):
 }
 
 Value LoxFunction::Call(Interpreter& interpreter, std::vector<Value>& arguments) {
-    auto environment = std::make_shared<Environment>(interpreter.GlobalScope());
+    /* Each function will be run in its own environment */
+    auto current_scope = interpreter.CurrentScope();
+    auto new_scope = std::make_shared<Environment>(current_scope);
+
     for(int i = 0; i < arguments.size(); ++i) {
-        environment->Define(declaration.params[i].lexeme, arguments[i]);
+        new_scope->Define(declaration.params[i].lexeme, arguments[i]);
     }
-    interpreter.Interpret(declaration.stmts, environment);
-    return Value();
+
+    interpreter.SetScope(new_scope);
+
+    Value return_value;
+
+    try {
+        interpreter.Interpret(declaration.stmts);
+    } catch(ReturnSignal& returnValue) {
+        return_value = returnValue.value;
+    }
+
+    interpreter.SetScope(current_scope);
+
+    return return_value;
 }
 
 int LoxFunction::Arity() {

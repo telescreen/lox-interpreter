@@ -4,8 +4,7 @@
 #include <iostream>
 #include <string>
 #include <memory>
-
-#include "lox_exception.hpp"
+#include <map>
 
 class LoxCallable;
 
@@ -64,10 +63,10 @@ public:
     friend bool compare(const Value& lhs, const Value& rhs, Comparator comparator);
 
 private:
-    std::shared_ptr<LoxCallable> func = nullptr;
-    double number = 0;
-    bool logic_value = true;
-    std::string text = "";
+    std::shared_ptr<LoxCallable> func;
+    double number;
+    bool logic_value;
+    std::string text;
 };
 
 #endif

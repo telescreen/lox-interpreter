@@ -24,7 +24,7 @@ void Environment::Assign(const Token &name, const Value& value) {
         return;
     }
 
-    throw RuntimeError(name, "Variable undefined");
+    throw RuntimeError(name, "Variable undefined at Environment::Assign");
 }
 
 Value Environment::Get(Token name) {
@@ -34,5 +34,5 @@ Value Environment::Get(Token name) {
 
     if (enclosing) return enclosing->Get(name);
 
-    throw RuntimeError(name, "Variable undefined");
+    throw RuntimeError(name, "Variable undefined at Environment::Get");
 }
