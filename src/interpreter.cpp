@@ -82,7 +82,7 @@ void Interpreter::Visit(BlockStatement& stmt) {
 }
 
 void Interpreter::Visit(FunctionStatement& stmt) {
-    auto func = std::make_shared<LoxFunction>(stmt);
+    auto func = std::make_shared<LoxFunction>(stmt, environment);
     environment->Define(stmt.name.lexeme, Value(func));
 }
 

@@ -13,7 +13,7 @@ class Interpreter: public Expression::Visitor, public Statement::Visitor {
 public:
     Interpreter();
 
-    void Interpret(const std::list<std::unique_ptr<Statement>>& statements);
+    void Interpret(const std::list<std::unique_ptr<Statement>>&);
 
     void Visit(PrintStatement& stmt) override;
 

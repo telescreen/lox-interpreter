@@ -5,4 +5,5 @@ fun fact(n) {
         return 1;
 }
 
+print "factorial of 6 is: ";
 print fact(6);
